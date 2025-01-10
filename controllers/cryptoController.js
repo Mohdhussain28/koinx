@@ -31,10 +31,10 @@ const fetchCryptoData = async (req, res) => {
 
         await Crypto.insertMany(cryptoEntries);
         console.log("Crypto data updated successfully!");
-        if (res) res.status(200).json({ message: "Crypto data fetched and saved." });
+        res.status(200).json({ message: "Crypto data fetched and saved." });
     } catch (error) {
         console.error("Error fetching data from CoinGecko:", error.message);
-        if (res) res.status(500).json({ error: "Failed to fetch crypto data." });
+        res.status(500).json({ error: "Failed to fetch crypto data." });
     }
 };
 
@@ -60,12 +60,49 @@ const getCryptoStats = async (req, res) => {
             "24hChange": crypto.change24h,
         };
 
-        res.status(200).json(response);
+        res.status(200).json({ message: "Crypto data successfully fetched", response });
     } catch (error) {
         console.error("Error fetching cryptocurrency stats:", error.message);
         res.status(500).json({ error: "Failed to fetch cryptocurrency stats." });
     }
 };
 
+// Get the standard deviation of prices for the last 100 records
+const getPriceDeviation = async (req, res) => {
+    const coin = req.query?.coin;
 
-module.exports = { fetchCryptoData, getCryptoStats };
+    if (!coin) {
+        return res.status(400).json({ error: "Coin query parameter is required." });
+    }
+
+    try {
+        // Fetch the last 100 records for the specified coin
+        const records = await Crypto.find({ coinId: coin })
+            .sort({ fetchedAt: -1 })
+            .limit(100);
+
+        if (!records || records.length === 0) {
+            return res.status(404).json({ error: `No data found for coin: ${coin}` });
+        }
+
+        // Extract prices from the records
+        const prices = records.map(record => record.currentPrice);
+
+        // Calculate mean
+        const mean = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+
+        // Calculate variance
+        const variance = prices.reduce((sum, price) => sum + Math.pow(price - mean, 2), 0) / prices.length;
+
+        // Calculate standard deviation
+        const deviation = Math.sqrt(variance).toFixed(2);
+
+        res.status(200).json({ message: "successfully get the deviation result", deviation: parseFloat(deviation) });
+    } catch (error) {
+        console.error("Error in calculation", error.message);
+        res.status(500).json({ error: "Failed to calculate price deviation." });
+    }
+};
+
+
+module.exports = { fetchCryptoData, getCryptoStats, getPriceDeviation };
