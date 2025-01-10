@@ -60,7 +60,7 @@ const getCryptoStats = async (req, res) => {
             "24hChange": crypto.change24h,
         };
 
-        res.status(200).json({ message: "Crypto data successfully fetched", response });
+        res.status(200).json(response);
     } catch (error) {
         console.error("Error fetching cryptocurrency stats:", error.message);
         res.status(500).json({ error: "Failed to fetch cryptocurrency stats." });
@@ -97,7 +97,7 @@ const getPriceDeviation = async (req, res) => {
         // Calculate standard deviation
         const deviation = Math.sqrt(variance).toFixed(2);
 
-        res.status(200).json({ message: "successfully get the deviation result", deviation: parseFloat(deviation) });
+        res.status(200).json({ deviation: parseFloat(deviation) });
     } catch (error) {
         console.error("Error in calculation", error.message);
         res.status(500).json({ error: "Failed to calculate price deviation." });
