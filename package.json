@@ -10,10 +10,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "body-parser": "^1.20.3",
+    "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "koinx": "file:",
+    "mongoose": "^8.9.4",
+    "node-cron": "^3.0.3",
     "nodemon": "^3.1.9"
   }
 }
