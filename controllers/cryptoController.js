@@ -38,5 +38,34 @@ const fetchCryptoData = async (req, res) => {
     }
 };
 
+// Get the latest stats for a specific cryptocurrency
+const getCryptoStats = async (req, res) => {
+    const coin = req.query?.coin;
 
-module.exports = { fetchCryptoData };
+    if (!coin) {
+        return res.status(400).json({ error: "Coin query parameter is required." });
+    }
+
+    try {
+        // Fetch the latest record for the specified coin
+        const crypto = await Crypto.findOne({ coinId: coin }).sort({ fetchedAt: -1 });
+
+        if (!crypto) {
+            return res.status(404).json({ error: `No data found for coin: ${coin}` });
+        }
+
+        const response = {
+            price: crypto.currentPrice,
+            marketCap: crypto.marketCap,
+            "24hChange": crypto.change24h,
+        };
+
+        res.status(200).json(response);
+    } catch (error) {
+        console.error("Error fetching cryptocurrency stats:", error.message);
+        res.status(500).json({ error: "Failed to fetch cryptocurrency stats." });
+    }
+};
+
+
+module.exports = { fetchCryptoData, getCryptoStats };
